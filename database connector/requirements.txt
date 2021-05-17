@@ -1,0 +1,9 @@
+flask
+waitress
+# base64
+psycopg2
+requests
+# datetime
+# linecache
+# logging
+# systemd

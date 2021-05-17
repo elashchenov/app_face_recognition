@@ -1,0 +1,8 @@
+PyQt6
+key-generator
+requests
+pybase64
+tensorflow
+keras
+opencv-python
+numpy
