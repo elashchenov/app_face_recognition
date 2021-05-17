@@ -1,0 +1,90 @@
+properties([disableConcurrentBuilds()])
+
+pipeline {
+    agent { 
+        label 'master'
+        }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
+    }
+    stages {
+        stage("Интеграционное тестирование модуля с нейронной сетью") {
+            steps {
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/neural_network"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/neural_network/bin/python -m pytest --verbose ./tests/test.py
+                '''
+            }
+        }
+        
+        stage("Интеграционное тестирование модуля с базой данных") {
+            steps {
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/database connector"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/database\\ connector/bin/python -m pytest --verbose ./tests/test.py
+                '''
+            }
+        }
+        
+        stage("Интеграционное тестирование модуля с пользовательским интерфейсом") {
+            steps {
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/gui"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/gui/bin/python -m pytest --verbose ./test.py
+                '''
+            }
+        }
+        
+        stage("Интеграционное тестирование всех модулей") {
+            steps {
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/neural_network"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/neural_network/bin/python main.py &
+                sleep 1
+                '''
+                
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/database connector"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/database\\ connector/bin/python main.py &
+                sleep 1
+                '''
+                
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/gui"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/gui/bin/python -m pytest --verbose ./test_api.py
+                '''
+                
+                sh '''
+                echo "Carry7-huge" | sudo -S kill $(ps -ef | pgrep -f python)
+                '''
+            }
+        }
+        
+        stage("Системное тестирование приложения") {
+            steps {
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/neural_network"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/neural_network/bin/python main.py &
+                sleep 1
+                '''
+                
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/database connector"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/database\\ connector/bin/python main.py &
+                sleep 1
+                '''
+                
+                sh '''
+                cd "/Users/lashchenov/university/ТРКПО Маслаков/app_access_with_Face_Recognition/gui"
+                echo "Carry7-huge" | sudo -S /Users/lashchenov/miniforge3/envs/gui/bin/python -m pytest --verbose ./test_system.py
+                '''
+                
+                sh '''
+                echo "Carry7-huge" | sudo -S kill $(ps -ef | pgrep -f python)
+                '''
+            }
+        }
+        
+    }
+}
